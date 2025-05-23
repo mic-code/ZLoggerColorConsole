@@ -19,7 +19,7 @@ public class ColorConsole
     static readonly string AnsiBrightWhite = "\x1B[38;5;15m";
     static readonly string AnsiBrightYellow = "\x1B[38;5;11m";
     static readonly string AnsiBrightRed = "\x1B[38;5;9m";
-    static readonly string AnsiBrightMagenta = "\x1B[38;5;13m";
+    //static readonly string AnsiBrightMagenta = "\x1B[38;5;13m";
     static readonly string AnsiBrightOrange = "\x1B[38;5;208m";
 
     public static void ConfigOption(ILoggingBuilder builder)

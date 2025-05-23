@@ -34,7 +34,7 @@ internal class CLEFMessageTemplateFormatter : IZLoggerFormatter
 
     public bool WithLineBreak => true;
 
-    Utf8JsonWriter? jsonWriter;
+    Utf8JsonWriter jsonWriter;
     ArrayBufferWriter<byte> originalFormatWriter = new ArrayBufferWriter<byte>();
 
     public void FormatLogEntry(IBufferWriter<byte> writer, IZLoggerEntry entry)
