@@ -1,5 +1,5 @@
 name: Publish Nuget
-run-name: ${{ github.actor }} is updating dev.im-booth.com Frontend🚀
+run-name: ${{ github.actor }} is updating ${{ github.repository }}🚀
 on:
   push:
     branches:
@@ -22,10 +22,16 @@ jobs:
     - name: Upload
       uses: actions/upload-artifact@v4
       with:
-        name: nuget
+        name: ${{ github.repository }}
         if-no-files-found: error
         retention-days: 7
         path: pack/*.nupkg
+
+    - name: Publish Nuget
+      run: |
+          foreach($file in (Get-ChildItem pack/ -Recurse -Include *.nupkg)) {
+              dotnet nuget push $file --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          }
         
     - uses: sarisia/actions-status-discord@v1
       if: always()
