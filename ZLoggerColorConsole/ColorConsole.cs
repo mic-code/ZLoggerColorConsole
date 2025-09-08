@@ -34,31 +34,33 @@ public class ColorConsole
 
         }, processor =>
         {
-            processor.MessageReceived += msg =>
-            {
-                var jsonObject = JsonNode.Parse(msg)?.AsObject();
-                if (jsonObject != null)
-                {
-                    var timestamp = jsonObject["@t"]?.GetValue<string>();
-                    var logLevelJson = jsonObject["@l"]?.GetValue<string>();
-                    var messageTemplate = jsonObject["@mt"]?.GetValue<string>();
-
-                    string renderedMessage = TemplateRegex.Replace(messageTemplate, match => FillTemplate(match, jsonObject));
-
-                    string timeFormatted = "HH:mm:ss";
-                    if (DateTimeOffset.TryParse(timestamp, null, DateTimeStyles.AssumeUniversal | DateTimeStyles.AllowWhiteSpaces, out var dtOffset))
-                        timeFormatted = dtOffset.ToLocalTime().ToString("HH:mm:ss");
-
-                    string levelAbbreviated = GetLogLevelAbbreviation(logLevelJson);
-                    string categoryPlaceholder = jsonObject["@c"]?.GetValue<string>();
-                    string messageContent = renderedMessage ?? "";
-
-                    string formattedLogString = $"[{timeFormatted} {levelAbbreviated}] {categoryPlaceholder} {messageContent}";
-                    Console.WriteLine(formattedLogString);
-                }
-            };
+            processor.MessageReceived += OnMessageReceived;
         }
         );
+    }
+
+    private static void OnMessageReceived(string msg)
+    {
+        var jsonObject = JsonNode.Parse(msg)?.AsObject();
+        if (jsonObject != null)
+        {
+            var timestamp = jsonObject["@t"]?.GetValue<string>();
+            var logLevelJson = jsonObject["@l"]?.GetValue<string>();
+            var messageTemplate = jsonObject["@mt"]?.GetValue<string>();
+
+            string renderedMessage = TemplateRegex.Replace(messageTemplate, match => FillTemplate(match, jsonObject));
+
+            string timeFormatted = "HH:mm:ss";
+            if (DateTimeOffset.TryParse(timestamp, null, DateTimeStyles.AssumeUniversal | DateTimeStyles.AllowWhiteSpaces, out var dtOffset))
+                timeFormatted = dtOffset.ToLocalTime().ToString("HH:mm:ss");
+
+            string levelAbbreviated = GetLogLevelAbbreviation(logLevelJson);
+            string categoryPlaceholder = jsonObject["@c"]?.GetValue<string>();
+            string messageContent = renderedMessage ?? "";
+
+            string formattedLogString = $"[{timeFormatted} {levelAbbreviated}] {categoryPlaceholder} {messageContent}";
+            Console.WriteLine(formattedLogString);
+        }
     }
 
     static string FillTemplate(Match match, JsonObject jsonObject)
