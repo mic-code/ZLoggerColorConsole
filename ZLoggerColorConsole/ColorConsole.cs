@@ -63,68 +63,78 @@ public class ColorConsole
 
     static string FillTemplate(Match match, JsonObject jsonObject)
     {
-        string key = match.Groups[1].Value;
-        string originalFormat = match.Groups[2].Success ? match.Groups[2].Value : null;
+        try
+        {
+            string key = match.Groups[1].Value;
+            string originalFormat = match.Groups[2].Success ? match.Groups[2].Value : null;
 
-        if (!jsonObject.TryGetPropertyValue(key, out JsonNode valueNode))
-            return match.Value; // Key not found, return original placeholder without color
+            if (!jsonObject.TryGetPropertyValue(key, out JsonNode valueNode))
+                return match.Value; // Key not found, return original placeholder without color
 
-        object actualValue = null;
+            object actualValue = null;
 
-        if (valueNode != null && valueNode.GetValue<object>() is JsonElement element)
-            switch (element.ValueKind)
-            {
-                case JsonValueKind.String:
-                    actualValue = element.GetString();
-                    break;
-                case JsonValueKind.Number:
-                    if (element.TryGetInt32(out int i)) actualValue = i;
-                    else if (element.TryGetInt64(out long lng)) actualValue = lng;
-                    else if (element.TryGetDouble(out double dbl)) actualValue = dbl;
-                    else actualValue = element.ToString();
-                    break;
-                case JsonValueKind.True:
-                    actualValue = true;
-                    break;
-                case JsonValueKind.False:
-                    actualValue = false;
-                    break;
-                default:
-                    actualValue = element.ToString();
-                    break;
-            }
-        else
-            actualValue = null;
+            if (valueNode != null && valueNode is JsonObject)
+                return valueNode.ToString();
+
+            if (valueNode != null && valueNode.GetValue<object>() is JsonElement element)
+                switch (element.ValueKind)
+                {
+                    case JsonValueKind.String:
+                        actualValue = element.GetString();
+                        break;
+                    case JsonValueKind.Number:
+                        if (element.TryGetInt32(out int i)) actualValue = i;
+                        else if (element.TryGetInt64(out long lng)) actualValue = lng;
+                        else if (element.TryGetDouble(out double dbl)) actualValue = dbl;
+                        else actualValue = element.ToString();
+                        break;
+                    case JsonValueKind.True:
+                        actualValue = true;
+                        break;
+                    case JsonValueKind.False:
+                        actualValue = false;
+                        break;
+                    default:
+                        actualValue = element.ToString();
+                        break;
+                }
+            else
+                actualValue = null;
 
 
-        string valueColor;
-        if (actualValue is string)
-            valueColor = AnsiLightGreen;
-        else if (actualValue is double || actualValue is float)
-            valueColor = AnsiBrightOrange;
-        else if (actualValue is int || actualValue is long)
-            valueColor = AnsiBrightYellow;
-        else if (actualValue is bool)
-            valueColor = AnsiBrightCyan;
-        else
-            valueColor = AnsiBrightRed;
+            string valueColor;
+            if (actualValue is string)
+                valueColor = AnsiLightGreen;
+            else if (actualValue is double || actualValue is float)
+                valueColor = AnsiBrightOrange;
+            else if (actualValue is int || actualValue is long)
+                valueColor = AnsiBrightYellow;
+            else if (actualValue is bool)
+                valueColor = AnsiBrightCyan;
+            else
+                valueColor = AnsiBrightRed;
 
-        if (actualValue == null)
-            return valueColor + "null" + AnsiReset;
+            if (actualValue == null)
+                return valueColor + "null" + AnsiReset;
 
-        if (!string.IsNullOrEmpty(originalFormat))
-            if (actualValue is IFormattable formattableValue)
-            {
-                if (TryFormatValue(formattableValue, originalFormat, out string formattedResult))
-                    return valueColor + formattedResult + AnsiReset;
-            }
-            else if (actualValue is string stringValue)
-            {
-                if (TryParseAndFormatNumericString(stringValue, originalFormat, out string numericStringResult))
-                    return valueColor + numericStringResult + AnsiReset;
-            }
+            if (!string.IsNullOrEmpty(originalFormat))
+                if (actualValue is IFormattable formattableValue)
+                {
+                    if (TryFormatValue(formattableValue, originalFormat, out string formattedResult))
+                        return valueColor + formattedResult + AnsiReset;
+                }
+                else if (actualValue is string stringValue)
+                {
+                    if (TryParseAndFormatNumericString(stringValue, originalFormat, out string numericStringResult))
+                        return valueColor + numericStringResult + AnsiReset;
+                }
 
-        return valueColor + actualValue.ToString() + AnsiReset;
+            return valueColor + actualValue.ToString() + AnsiReset;
+        }
+        catch (Exception e)
+        {
+            return e.Message;
+        }
     }
 
     static bool TryParseAndFormatNumericString(string stringValue, string format, out string result)
