@@ -1,10 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using System.Buffers;
 using System.Text.Encodings.Web;
 using System.Text.Json.Serialization;
 using System.Text.Json;
 using System.Text.Unicode;
 using ZLogger;
+using System.Diagnostics;
+using System;
 
 //Modified version of https://github.com/Cysharp/ZLogger/blob/master/sandbox/ConsoleApp/SampleCustomFormatter.cs
 internal class CLEFMessageTemplateFormatter : IZLoggerFormatter
@@ -29,7 +31,9 @@ internal class CLEFMessageTemplateFormatter : IZLoggerFormatter
     {
         WriteIndented = false,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
-        Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)
+        Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
+        ReferenceHandler = ReferenceHandler.IgnoreCycles,
+        Converters = { new StackTraceConverter() }
     };
 
     public bool WithLineBreak => true;
@@ -62,9 +66,7 @@ internal class CLEFMessageTemplateFormatter : IZLoggerFormatter
         jsonWriter.WriteString(MessageTemplate, originalFormatWriter.WrittenSpan);
 
         if (entry.LogInfo.Exception != null)
-        {
             jsonWriter.WriteString(Exception, entry.LogInfo.Exception.ToString());
-        }
 
         // Parameters
         entry.WriteJsonParameterKeyValues(jsonWriter, JsonSerializerOptions);
@@ -99,5 +101,18 @@ internal class CLEFMessageTemplateFormatter : IZLoggerFormatter
             default:
                 break;
         }
+    }
+}
+
+internal class StackTraceConverter : JsonConverter<StackTrace>
+{
+    public override StackTrace Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        throw new NotSupportedException();
+    }
+
+    public override void Write(Utf8JsonWriter writer, StackTrace value, JsonSerializerOptions options)
+    {
+        writer.WriteStringValue(value.ToString());
     }
 }

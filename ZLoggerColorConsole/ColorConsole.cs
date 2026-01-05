@@ -10,7 +10,7 @@ namespace ZLoggerColorConsole;
 
 public class ColorConsole
 {
-    static readonly Regex TemplateRegex = new Regex(@"\{([^{}]+?)(?:,([^}]+))?\}", RegexOptions.Compiled);
+    static readonly Regex TemplateRegex = new Regex(@"\{((?:[^{},()]|\([^)]*\))+)(?:,([^}]+))?\}", RegexOptions.Compiled);
 
     static readonly string AnsiReset = "\x1B[0m";
     static readonly string AnsiBrightCyan = "\x1B[38;5;14m";
