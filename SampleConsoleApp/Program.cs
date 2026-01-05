@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ZLoggerColorConsole;
@@ -54,6 +54,7 @@ internal class Program
         logger.ZLogError($"double {d:N2}");
         logger.ZLogError($"null {n}");
         logger.ZLogCritical($"string is {s}");
+        logger.ZLogError($"Test StackTrace: {new System.Diagnostics.StackTrace(0, true)}");
 
         logger.ZLogInformation($"End");
     }

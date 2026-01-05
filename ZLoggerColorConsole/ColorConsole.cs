@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text.Json.Nodes;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -41,6 +41,13 @@ public class ColorConsole
 
     private static void OnMessageReceived(string msg)
     {
+        var formatted = FormatMessage(msg);
+        if (formatted != null)
+            Console.WriteLine(formatted);
+    }
+
+    internal static string FormatMessage(string msg)
+    {
         var jsonObject = JsonNode.Parse(msg)?.AsObject();
         if (jsonObject != null)
         {
@@ -58,9 +65,9 @@ public class ColorConsole
             string categoryPlaceholder = jsonObject["@c"]?.GetValue<string>();
             string messageContent = renderedMessage ?? "";
 
-            string formattedLogString = $"[{timeFormatted} {levelAbbreviated}] {categoryPlaceholder} {messageContent}";
-            Console.WriteLine(formattedLogString);
+            return $"[{timeFormatted} {levelAbbreviated}] {categoryPlaceholder} {messageContent}";
         }
+        return null;
     }
 
     static string FillTemplate(Match match, JsonObject jsonObject)
