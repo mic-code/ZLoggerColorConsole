@@ -27,6 +27,25 @@ public class ColorConsoleTests
     }
 
     [Test]
+    public void FormatMessage_ShouldHandleNestedParenthesesInKeys()
+    {
+        var json = new JsonObject
+        {
+            ["@t"] = "2023-10-27T10:00:00Z",
+            ["@c"] = "TestCategory",
+            ["@l"] = "Error",
+            ["@mt"] = "Result: {Marshal.PtrToStringAnsi((nint)pCallbackData->PMessageIdName)}",
+            ["Marshal.PtrToStringAnsi((nint)pCallbackData->PMessageIdName)"] = "Success"
+        };
+
+        var jsonString = json.ToJsonString();
+        var result = ColorConsole.FormatMessage(jsonString);
+
+        Assert.That(result, Does.Contain("Success"));
+        Assert.That(result, Does.Not.Contain("{Marshal.PtrToStringAnsi((nint)pCallbackData->PMessageIdName)}"));
+    }
+
+    [Test]
     public void FormatMessage_ShouldHandleStandardKeys()
     {
         var json = new JsonObject

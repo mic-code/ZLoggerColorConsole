@@ -10,7 +10,7 @@ namespace ZLoggerColorConsole;
 
 public class ColorConsole
 {
-    static readonly Regex TemplateRegex = new Regex(@"\{((?:[^{},()]|\([^)]*\))+)(?:,([^}]+))?\}", RegexOptions.Compiled);
+    static readonly Regex TemplateRegex = new Regex(@"\{(?<key>(?>[^{},()]+|\((?<Open>)|\)(?<-Open>)|(?(Open),|(?!) ))*)(?(Open)(?!))(?:,(?<fmt>[^}]+))?\}", RegexOptions.Compiled);
 
     static readonly string AnsiReset = "\x1B[0m";
     static readonly string AnsiBrightCyan = "\x1B[38;5;14m";
@@ -74,8 +74,8 @@ public class ColorConsole
     {
         try
         {
-            string key = match.Groups[1].Value;
-            string originalFormat = match.Groups[2].Success ? match.Groups[2].Value : null;
+            string key = match.Groups["key"].Value;
+            string originalFormat = match.Groups["fmt"].Success ? match.Groups["fmt"].Value : null;
 
             if (!jsonObject.TryGetPropertyValue(key, out JsonNode valueNode))
                 return match.Value; // Key not found, return original placeholder without color
