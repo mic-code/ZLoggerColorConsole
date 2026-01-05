@@ -46,6 +46,27 @@ public class ColorConsoleTests
     }
 
     [Test]
+    public void FormatMessage_ShouldHandleMultipleComplexKeys()
+    {
+        var json = new JsonObject
+        {
+            ["@t"] = "2023-10-27T10:00:00Z",
+            ["@c"] = "VulkanBackend.Validation",
+            ["@l"] = "Error",
+            ["@mt"] = "[{Marshal.PtrToStringAnsi((nint)pCallbackData->PMessageIdName)}]{Marshal.PtrToStringAnsi((nint)pCallbackData->PMessage)}",
+            ["Marshal.PtrToStringAnsi((nint)pCallbackData->PMessageIdName)"] = "VUID-12345",
+            ["Marshal.PtrToStringAnsi((nint)pCallbackData->PMessage)"] = "Something went wrong"
+        };
+
+        var jsonString = json.ToJsonString();
+        var result = ColorConsole.FormatMessage(jsonString);
+
+        Assert.That(result, Does.Contain("VUID-12345"));
+        Assert.That(result, Does.Contain("Something went wrong"));
+        Assert.That(result, Does.Not.Contain("{Marshal.PtrToStringAnsi"));
+    }
+
+    [Test]
     public void FormatMessage_ShouldHandleStandardKeys()
     {
         var json = new JsonObject
