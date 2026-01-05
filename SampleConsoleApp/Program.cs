@@ -3,9 +3,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ZLoggerColorConsole;
 using ZLogger;
-using Silk.NET.Windowing;
-using Silk.NET.Maths;
-using Silk.NET.Input;
 
 namespace SampleConsoleApp;
 
@@ -27,20 +24,6 @@ internal class Program
         logger = AppHost.Services.GetService<ILogger<Program>>();
         logger.ZLogInformation($"Start");
 
-        //var options = WindowOptions.DefaultVulkan with
-        //{
-        //    Size = new Vector2D<int>(800, 600),
-        //};
-        //var window = Window.Create(options);
-        //window.Initialize();
-        //var input = window.CreateInput();
-
-        //for (int j = 0; j < input.Keyboards.Count; j++)
-        //    input.Keyboards[j].KeyDown += KeyDown;
-
-        //while (!window.IsClosing)
-        //    window.DoEvents();
-
 
         var i = 123;
         var t = true;
@@ -57,17 +40,5 @@ internal class Program
         logger.ZLogError($"Test StackTrace: {new System.Diagnostics.StackTrace(0, true)}");
 
         logger.ZLogInformation($"End");
-    }
-
-    static void KeyDown(IKeyboard keyboard, Key key, int arg3)
-    {
-        Console.WriteLine(keyboard.Name);
-        Console.WriteLine(key);
-        Console.WriteLine(arg3);
-
-
-        //logger.ZLogInformation($"keyboard {keyboard} key {key} {arg3}");
-        logger.ZLogInformation($"k:{keyboard}");
-        //logger.LogInformation("keyboard {keyboard} key {key} {arg3}", keyboard, key, arg3);
     }
 }
