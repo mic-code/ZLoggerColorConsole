@@ -5,7 +5,7 @@
 	<PackageId>Overimagined.ZLoggerColorConsole</PackageId>
 	<MinVerTagPrefix>v</MinVerTagPrefix>
 	<MinVerDefaultPreReleaseIdentifiers>beta</MinVerDefaultPreReleaseIdentifiers>
-	<MinVerVerbosity>silent</MinVerVerbosity>
+	<MinVerVerbosity>quiet</MinVerVerbosity>
   </PropertyGroup>
 
   <ItemGroup>
