@@ -15,6 +15,7 @@ public class ColorConsole
     static readonly string AnsiReset = "\x1B[0m";
     static readonly string AnsiBrightCyan = "\x1B[38;5;14m";
     static readonly string AnsiGrey = "\x1B[38;5;8m";
+    static readonly string AnsiLightGrey = "\x1B[38;5;248m";
     static readonly string AnsiLightGreen = "\x1B[38;5;10m";
     static readonly string AnsiBrightWhite = "\x1B[38;5;15m";
     static readonly string AnsiBrightYellow = "\x1B[38;5;11m";
@@ -63,6 +64,17 @@ public class ColorConsole
 
             string levelAbbreviated = GetLogLevelAbbreviation(logLevelJson);
             string categoryPlaceholder = jsonObject["@c"]?.GetValue<string>();
+
+            if (categoryPlaceholder != null)
+            {
+                int lastDotIndex = categoryPlaceholder.LastIndexOf('.');
+                if (lastDotIndex >= 0 && lastDotIndex < categoryPlaceholder.Length - 1)
+                {
+                    categoryPlaceholder = categoryPlaceholder.Substring(lastDotIndex + 1);
+                }
+                categoryPlaceholder = AnsiLightGrey + categoryPlaceholder + AnsiReset;
+            }
+
             string messageContent = renderedMessage ?? "";
 
             return $"[{timeFormatted} {levelAbbreviated}] {categoryPlaceholder} {messageContent}";
