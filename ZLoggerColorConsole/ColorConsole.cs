@@ -49,7 +49,20 @@ public class ColorConsole
 
     internal static string FormatMessage(string msg)
     {
-        var jsonObject = JsonNode.Parse(msg)?.AsObject();
+        if (string.IsNullOrWhiteSpace(msg))
+            return null;
+            
+        JsonObject jsonObject;
+        try
+        {
+            jsonObject = JsonNode.Parse(msg)?.AsObject();
+        }
+        catch (JsonException)
+        {
+            // Not valid JSON, output as plain text
+            return msg;
+        }
+        
         if (jsonObject != null)
         {
             var timestamp = jsonObject["@t"]?.GetValue<string>();
