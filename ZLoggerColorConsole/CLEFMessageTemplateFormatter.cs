@@ -44,9 +44,23 @@ internal class CLEFMessageTemplateFormatter : IZLoggerFormatter
     public void FormatLogEntry(IBufferWriter<byte> writer, IZLoggerEntry entry)
     {
         // FormatLogEntry is guaranteed call in single-thread so reuse Utf8JsonWriter
-        jsonWriter?.Reset(writer);
-        jsonWriter ??= new Utf8JsonWriter(writer);
+        try
+        {
+            jsonWriter?.Reset(writer);
+            jsonWriter ??= new Utf8JsonWriter(writer);
 
+            FormatLogEntryCore(jsonWriter, entry);
+        }
+        catch (InvalidOperationException)
+        {
+            // Writer was in corrupted state, recreate and retry
+            jsonWriter = new Utf8JsonWriter(writer);
+            FormatLogEntryCore(jsonWriter, entry);
+        }
+    }
+
+    void FormatLogEntryCore(Utf8JsonWriter jsonWriter, IZLoggerEntry entry)
+    {
         jsonWriter.WriteStartObject();
 
         jsonWriter.WriteString(Timestamp, entry.LogInfo.Timestamp.Utc); // Utc or Local
