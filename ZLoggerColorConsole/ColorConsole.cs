@@ -42,9 +42,18 @@ public class ColorConsole
 
     private static void OnMessageReceived(string msg)
     {
-        var formatted = FormatMessage(msg);
-        if (formatted != null)
-            Console.WriteLine(formatted);
+        try
+        {
+            var formatted = FormatMessage(msg);
+            if (formatted != null)
+                Console.WriteLine(formatted);
+        }
+        catch (Exception)
+        {
+            // If formatting fails, output the raw message
+            if (!string.IsNullOrWhiteSpace(msg))
+                Console.WriteLine(msg);
+        }
     }
 
     internal static string FormatMessage(string msg)
