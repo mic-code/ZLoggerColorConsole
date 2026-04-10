@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using System.Buffers;
+using System.Reflection;
 using System.Text.Encodings.Web;
 using System.Text.Json.Serialization;
 using System.Text.Json;
@@ -33,7 +34,11 @@ internal class CLEFMessageTemplateFormatter : IZLoggerFormatter
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
         Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
         ReferenceHandler = ReferenceHandler.IgnoreCycles,
-        Converters = { new StackTraceConverter() }
+        Converters = { 
+            new StackTraceConverter(),
+            new MethodBaseConverter(),
+            new ExceptionConverter()
+        }
     };
 
     public bool WithLineBreak => true;
@@ -114,5 +119,40 @@ internal class StackTraceConverter : JsonConverter<StackTrace>
     public override void Write(Utf8JsonWriter writer, StackTrace value, JsonSerializerOptions options)
     {
         writer.WriteStringValue(value.ToString());
+    }
+}
+
+internal class MethodBaseConverter : JsonConverter<MethodBase>
+{
+    public override MethodBase Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        throw new NotSupportedException();
+    }
+
+    public override void Write(Utf8JsonWriter writer, MethodBase value, JsonSerializerOptions options)
+    {
+        writer.WriteStringValue(value?.DeclaringType?.Name + "." + value?.Name);
+    }
+}
+
+internal class ExceptionConverter : JsonConverter<Exception>
+{
+    public override Exception Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        throw new NotSupportedException();
+    }
+
+    public override void Write(Utf8JsonWriter writer, Exception value, JsonSerializerOptions options)
+    {
+        writer.WriteStartObject();
+        writer.WriteString("Type", value.GetType().FullName);
+        writer.WriteString("Message", value.Message);
+        writer.WriteString("StackTrace", value.StackTrace);
+        if (value.InnerException != null)
+        {
+            writer.WritePropertyName("InnerException");
+            Write(writer, value.InnerException, options);
+        }
+        writer.WriteEndObject();
     }
 }
